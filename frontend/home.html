@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KisanVision 360 - Home</title>
+    <link rel="stylesheet" href="/static/style.css?v=4">
+    <style>
+        .dashboard-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="top-nav">
+                <a class="nav-link active" href="/" data-i18n="nav.home">Home</a>
+                <a class="nav-link" href="/disease" data-i18n="nav.disease">Disease</a>
+                <a class="nav-link" href="/dashboard" data-i18n="nav.lifecycle">Lifecycle</a>
+                <a class="nav-link" href="/market" data-i18n="nav.postharvest">Post-Harvest</a>
+                <button id="connection-status-btn" class="connection-status-btn" type="button">Checking...</button>
+            </nav>
+            <h1>KisanVision 360 - Home</h1>
+            <p class="subtitle" data-i18n="home.subtitle">Today’s farm status, what to do now, and market prices in one screen.</p>
+        </header>
+
+        <section class="live-dashboard">
+            <h2 data-i18n="home.today">Today on Your Farm</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 data-i18n="home.fieldHealth">Field Health</h3>
+                    <p id="home-risk">Field Risk: --</p>
+                    <p id="home-stage">Crop Stage: --</p>
+                    <p id="home-stage-tip">Stage Help: --</p>
+                    <p id="home-field-temp">🌡️ Temperature: --</p>
+                    <p id="home-field-soil">💧 Soil Moisture: --</p>
+                    <p id="home-field-rain">🌧️ Rain: --</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 data-i18n="home.actionsTitle">What To Do Today</h3>
+                    <ul id="home-actions" class="home-actions">
+                        <li>Waiting for recommendation...</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="live-dashboard">
+            <h2 data-i18n="home.marketTitle">Today’s Market Prices</h2>
+            <div id="home-price-list" class="price-list"></div>
+        </section>
+    </div>
+    <script src="/static/i18n.js"></script>
+    <script src="/static/common.js?v=3"></script>
+    <script src="/static/home.js?v=2"></script>
+</body>
+</html>

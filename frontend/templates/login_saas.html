@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}KisanVision 360 • Login{% endblock %}
+
+{% block content %}
+<section class="min-h-[70vh] flex items-center justify-center px-6 py-12">
+  <div class="w-full max-w-md">
+    <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/50 mb-4">
+          <span class="text-4xl">🌾</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50">KisanVision 360</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Enter your name and PIN to continue</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="space-y-5">
+        <div>
+          <label for="farmer-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            👤 Your Name
+          </label>
+          <input 
+            type="text" 
+            id="farmer-name" 
+            name="farmer_name"
+            placeholder="Enter your registered name"
+            autocomplete="name"
+            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="farmer-pin" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            🔑 Your PIN
+          </label>
+          <div class="flex justify-center gap-3">
+            <input id="pin-1" type="password" inputmode="numeric" maxlength="1" class="w-14 h-14 text-center text-2xl font-bold rounded-xl border-2 border-gray-200 bg-gray-50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" autocomplete="off">
+            <input id="pin-2" type="password" inputmode="numeric" maxlength="1" class="w-14 h-14 text-center text-2xl font-bold rounded-xl border-2 border-gray-200 bg-gray-50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" autocomplete="off">
+            <input id="pin-3" type="password" inputmode="numeric" maxlength="1" class="w-14 h-14 text-center text-2xl font-bold rounded-xl border-2 border-gray-200 bg-gray-50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" autocomplete="off">
+            <input id="pin-4" type="password" inputmode="numeric" maxlength="1" class="w-14 h-14 text-center text-2xl font-bold rounded-xl border-2 border-gray-200 bg-gray-50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" autocomplete="off">
+          </div>
+        </div>
+
+        <div id="login-error" class="text-sm text-red-600 dark:text-red-400 text-center hidden">
+          Invalid name or PIN. Please try again.
+        </div>
+
+        <button 
+          type="submit" 
+          id="login-btn"
+          class="w-full rounded-xl bg-emerald-600 px-6 py-4 text-base font-semibold text-white transition-all hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 dark:focus:ring-emerald-800"
+        >
+          🔓 Login
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+        Ask your admin to register you and provide your PIN
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/login_saas.js?v=1"></script>
+{% endblock %}

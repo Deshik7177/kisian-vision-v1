@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KisanVision 360 - Post-Harvest</title>
+    <link rel="stylesheet" href="/static/style.css?v=5">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="top-nav">
+                <a class="nav-link" href="/" data-i18n="nav.home">Home</a>
+                <a class="nav-link" href="/disease" data-i18n="nav.disease">Disease</a>
+                <a class="nav-link" href="/dashboard" data-i18n="nav.lifecycle">Lifecycle</a>
+                <a class="nav-link active" href="/market" data-i18n="nav.postharvest">Post-Harvest</a>
+                <button id="connection-status-btn" class="connection-status-btn" type="button">Checking...</button>
+            </nav>
+            <h1>KisanVision 360 - Post-Harvest</h1>
+            <p class="subtitle">Price + sell timing insights.</p>
+        </header>
+
+        <section class="upload-section compact-section">
+            <div class="controls-grid two-col">
+                <label class="language-picker" for="commodity-select">
+                    <span>Commodity *</span>
+                    <select id="commodity-select">
+                        <optgroup label="Cereals">
+                            <option value="Rice">Rice</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Maize">Maize</option>
+                        </optgroup>
+                        <optgroup label="Vegetables">
+                            <option value="Onion">Onion</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Tomato">Tomato</option>
+                            <option value="Cabbage">Cabbage</option>
+                            <option value="Carrot">Carrot</option>
+                            <option value="Beetroot">Beetroot</option>
+                            <option value="Green Chilli">Green Chilli</option>
+                        </optgroup>
+                        <optgroup label="Fruits">
+                            <option value="Banana">Banana</option>
+                        </optgroup>
+                    </select>
+                </label>
+                <label class="language-picker" for="quantity-input">
+                    <span>Qty (q) *</span>
+                    <input id="quantity-input" type="number" min="1" value="10" class="input-number">
+                </label>
+                <button id="refresh-market-btn" class="primary-btn">Refresh</button>
+            </div>
+            <p id="market-source" class="selected-file">Source: --</p>
+        </section>
+
+        <section class="live-dashboard">
+            <h2>Market Decision</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Market Snapshot</h3>
+                    <p id="current-price">Price: --</p>
+                    <p id="trend">Trend: --</p>
+                    <p id="spoilage-risk">Spoilage: --</p>
+                    <p id="cold-score">Cold Score: --</p>
+                    <p id="cold-ideal">Ideal Range: --</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Sell Timing</h3>
+                    <p id="sell-highlight" class="sell-highlight">Action: --</p>
+                    <p id="decision">Decision: --</p>
+                    <p id="reason">Reason: --</p>
+                    <p id="cold-guidance">Guidance: --</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid market-extra-grid">
+                <div class="dashboard-card">
+                    <h3>Price Trend (7 points)</h3>
+                    <canvas id="trend-canvas" width="640" height="220"></canvas>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Profit Estimate</h3>
+                    <p id="sell-now">Sell Now: --</p>
+                    <p id="hold-value">Hold 2d: --</p>
+                    <p id="profit-diff">Diff: --</p>
+                    <p id="profit-note">Based on trend + spoilage.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid market-extra-grid market-bottom-grid">
+                <div class="dashboard-card">
+                    <h3>Storage Status</h3>
+                    <p id="monitor-storage-temp">Storage Temp: --</p>
+                    <p id="monitor-storage-humidity">Storage Humidity: --</p>
+                    <p id="monitor-storage-days">Storage Days: --</p>
+                    <p id="monitor-spoilage-risk">Spoilage Risk: --</p>
+                    <p>Storage Source:
+                        <span id="monitor-storage-source" class="conn-indicator conn-demo">
+                            <span class="conn-dot"></span>
+                            <span class="conn-label">DEMO</span>
+                        </span>
+                    </p>
+                </div>
+
+                <div class="recommendation-box">
+                    <h3>Recent Prices</h3>
+                    <p id="price-history">No data yet.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="/static/i18n.js"></script>
+    <script src="/static/common.js?v=4"></script>
+    <script src="/static/market.js?v=2"></script>
+</body>
+</html>

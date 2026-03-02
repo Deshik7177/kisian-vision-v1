@@ -1,0 +1,10 @@
+flask
+ultralytics
+pillow
+groq
+python-dotenv
+fastapi
+uvicorn
+python-multipart
+joblib
+requests

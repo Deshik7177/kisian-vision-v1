@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KisanVision 360 - Lifecycle</title>
+    <link rel="stylesheet" href="/static/style.css?v=5">
+</head>
+<body class="lifecycle-page">
+    <div class="container">
+        <header class="header">
+            <nav class="top-nav">
+                <a class="nav-link" href="/" data-i18n="nav.home">Home</a>
+                <a class="nav-link" href="/disease" data-i18n="nav.disease">Disease</a>
+                <a class="nav-link active" href="/dashboard" data-i18n="nav.lifecycle">Lifecycle</a>
+                <a class="nav-link" href="/market" data-i18n="nav.postharvest">Post-Harvest</a>
+                <button id="connection-status-btn" class="connection-status-btn" type="button">Checking...</button>
+            </nav>
+            <h1>KisanVision 360 - Lifecycle</h1>
+            <p class="subtitle">Live field + storage status.</p>
+        </header>
+
+        <section class="upload-section compact-section">
+            <div class="lifecycle-topbar">
+                <div class="lifecycle-topbar-left">
+                    <div class="controls-grid two-col">
+                        <label class="language-picker" for="commodity-select">
+                            <span>Commodity *</span>
+                            <select id="commodity-select">
+                                <optgroup label="Cereals">
+                                    <option value="Rice">Rice</option>
+                                    <option value="Wheat">Wheat</option>
+                                    <option value="Maize">Maize</option>
+                                </optgroup>
+                                <optgroup label="Vegetables">
+                                    <option value="Onion">Onion</option>
+                                    <option value="Potato">Potato</option>
+                                    <option value="Tomato">Tomato</option>
+                                    <option value="Cabbage">Cabbage</option>
+                                    <option value="Carrot">Carrot</option>
+                                    <option value="Beetroot">Beetroot</option>
+                                    <option value="Green Chilli">Green Chilli</option>
+                                </optgroup>
+                                <optgroup label="Fruits">
+                                    <option value="Banana">Banana</option>
+                                </optgroup>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="lifecycle-topbar-right" aria-label="Live node status">
+                    <span id="node-health" class="node-health node-health-offline">Offline</span>
+                    <span id="node-signal" class="signal-bars signal-0" aria-label="Signal strength" title="Signal strength">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </span>
+                    <span id="lifecycle-last-updated" class="lifecycle-last-updated">Last updated: --</span>
+                </div>
+            </div>
+
+            <p id="status-text" class="status-text">Syncing...</p>
+            <div id="risk-alert" class="risk-alert risk-alert-hidden" role="alert" aria-live="assertive"></div>
+        </section>
+
+        <section class="live-dashboard">
+            <h2>Live Dashboard</h2>
+
+            <div class="recommendation-box lifecycle-focus-box">
+                <h3>Top Actions</h3>
+                <p id="dashboard-recommendation">Waiting for data...</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>
+                        Field
+                        <span id="field-conn" class="conn-indicator conn-disconnected">
+                            <span class="conn-dot"></span>
+                            <span class="conn-label">Disconnected</span>
+                        </span>
+                    </h3>
+                    <p id="field-temp" class="metric-row"><span class="metric-k">🌡️ Temp</span><span class="metric-v">--</span></p>
+                    <p id="field-humidity" class="metric-row"><span class="metric-k">💧 Humidity</span><span class="metric-v">--</span></p>
+                    <p id="field-soil" class="metric-row"><span class="metric-k">🌱 Soil</span><span class="metric-v">--</span></p>
+                    <p id="field-rain" class="metric-row"><span class="metric-k">🌧️ Rain</span><span class="metric-v">--</span></p>
+                    <p id="field-rain-days" class="metric-row"><span class="metric-k">📅 Rain Days</span><span class="metric-v">--</span></p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>
+                        Storage
+                        <span id="storage-conn" class="conn-indicator conn-demo">
+                            <span class="conn-dot"></span>
+                            <span class="conn-label">Demo</span>
+                        </span>
+                    </h3>
+                    <p id="storage-temp" class="metric-row"><span class="metric-k">🌡️ Temp</span><span class="metric-v">--</span></p>
+                    <p id="storage-humidity" class="metric-row"><span class="metric-k">💧 Humidity</span><span class="metric-v">--</span></p>
+                    <p id="storage-days" class="metric-row"><span class="metric-k">🗃️ Days</span><span class="metric-v">--</span></p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Risk</h3>
+                    <p id="risk-level" class="metric-row"><span class="metric-k">⚠️ Risk</span><span class="metric-v">--</span></p>
+                    <p id="risk-env" class="metric-row"><span class="metric-k">🧪 Env Score</span><span class="metric-v">--</span></p>
+                    <p id="risk-harvest" class="metric-row"><span class="metric-k">🌾 Harvest</span><span class="metric-v">--</span></p>
+                    <p id="risk-spoilage" class="metric-row"><span class="metric-k">📉 Spoilage</span><span class="metric-v">--</span></p>
+                    <p id="risk-source" class="metric-row"><span class="metric-k">📡 Source</span><span class="metric-v">--</span></p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Stage</h3>
+                    <p id="crop-stage" class="metric-row"><span class="metric-k">🌿 Stage</span><span class="metric-v">--</span></p>
+                    <p id="crop-stage-tip" class="metric-row"><span class="metric-k">🧭 Guide</span><span class="metric-v">--</span></p>
+                    <p id="crop-stage-action-1" class="metric-row"><span class="metric-k">✅ Act</span><span class="metric-v">--</span></p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="/static/i18n.js"></script>
+    <script src="/static/common.js?v=4"></script>
+    <script src="/static/dashboard.js?v=5"></script>
+</body>
+</html>

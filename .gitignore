@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+backend/.env
+
+# Local DB and generated assets
+backend/agri_edge.db
+backend/uploads/
+
+# VS Code
+.vscode/*.log

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}KisanVision 360 • Home{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-7xl px-6 py-6">
+  <!-- Hero Banner -->
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 p-8 shadow-lg mb-6">
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute top-4 left-10 w-16 h-16 rounded-full bg-white/20"></div>
+      <div class="absolute bottom-6 right-20 w-24 h-24 rounded-full bg-white/10"></div>
+      <div class="absolute top-1/2 left-1/3 w-12 h-12 rounded-full bg-white/15"></div>
+    </div>
+    <div class="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-white drop-shadow-sm flex items-center gap-3">
+          <span class="text-4xl">🌾</span>
+          <span data-i18n="home.welcome">Welcome to KisanVision 360</span>
+        </h1>
+        <p class="mt-2 text-sm text-white/90" data-i18n="home.subtitle">Today's farm status, what to do now, and market prices in one screen.</p>
+      </div>
+      <div class="rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-xs font-medium text-white shadow-sm">
+        <span class="text-white/70" data-i18n="home.lastUpdated">Last updated:</span>
+        <span id="last-updated" class="ml-1 font-semibold">--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Health Summary -->
+  <div class="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-green-50 p-6 shadow-sm dark:border-emerald-900/50 dark:from-emerald-950/30 dark:via-gray-900 dark:to-green-950/30">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-lg font-semibold text-emerald-800 dark:text-emerald-300">🌾 <span data-i18n="farm.title">Today on Your Farm</span></div>
+        <div class="mt-1 text-sm text-emerald-600/80 dark:text-emerald-400/70" data-i18n="farm.subtitle">Field health and current conditions</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="status-dot" class="relative inline-flex h-2.5 w-2.5 rounded-full bg-gray-400"></span>
+        <span id="status-text" class="text-sm font-medium text-gray-700 dark:text-gray-300" data-i18n="farm.loading">Loading...</span>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400" data-i18n="farm.cropStage">Crop Stage</div>
+        <div id="home-stage" class="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-50">--</div>
+      </div>
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400" data-i18n="farm.riskLevel">Risk Level</div>
+        <div id="home-risk" class="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-50">--</div>
+      </div>
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400" data-i18n="farm.temperature">Temperature</div>
+        <div id="home-temp" class="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-50">--</div>
+      </div>
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400" data-i18n="farm.soilMoisture">Soil Moisture</div>
+        <div id="home-soil" class="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-50">--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What to Do Today -->
+  <div class="mt-6 rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-6 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:via-gray-900 dark:to-orange-950/30">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-lg font-semibold text-amber-800 dark:text-amber-300">📋 <span data-i18n="actions.title">What To Do Today</span></div>
+        <div class="mt-1 text-sm text-amber-600/80 dark:text-amber-400/70" data-i18n="actions.subtitle">Recommended actions for your field</div>
+      </div>
+      <div id="action-count" class="text-xs text-gray-500 dark:text-gray-400">--</div>
+    </div>
+    <ul id="home-actions" class="space-y-3">
+      <li class="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gray-400"></span>
+        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="actions.loading">Loading recommendations...</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Market Prices (Today + Tomorrow) -->
+  <div class="mt-6 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-sm dark:border-blue-900/50 dark:from-blue-950/30 dark:via-gray-900 dark:to-indigo-950/30">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+      <div>
+        <div class="text-lg font-semibold text-blue-800 dark:text-blue-300">💰 <span data-i18n="market.title">Market Prices</span></div>
+        <div class="mt-1 text-sm text-blue-600/80 dark:text-blue-400/70" data-i18n="market.subtitle">Today's prices &amp; tomorrow's prediction</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Location Selector -->
+        <div class="relative">
+          <select id="location-select" class="appearance-none pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300">
+            <option value="vizianagaram">Loading...</option>
+          </select>
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400 pointer-events-none">📍</span>
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400 pointer-events-none text-[10px]">▼</span>
+        </div>
+        <!-- Current Location Display -->
+        <div id="market-location" class="hidden sm:flex items-center gap-1 px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">
+          <span class="text-[10px] text-gray-500 dark:text-gray-400" data-i18n="market.mandiPrices">Mandi Prices</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Price Cards -->
+    <div id="home-prices" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-sm text-gray-500 dark:text-gray-400">Loading prices...</div>
+      </div>
+    </div>
+    
+    <!-- Prediction Info -->
+    <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+      <div class="flex items-start gap-2">
+        <span class="text-blue-500">📊</span>
+        <div class="text-xs text-blue-700 dark:text-blue-300">
+          <strong>Tomorrow's Prediction:</strong> Based on 7-day price trend analysis using weighted moving average + momentum. 
+          Confidence levels: <span class="text-emerald-600 dark:text-emerald-400 font-medium">High</span> (consistent trend), 
+          <span class="text-amber-600 dark:text-amber-400 font-medium">Medium</span> (moderate data), 
+          <span class="text-gray-600 dark:text-gray-400 font-medium">Low</span> (limited data).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Navigation -->
+  <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <a href="/disease" class="group rounded-xl border-2 border-red-200 bg-gradient-to-br from-red-50 to-rose-50 p-6 shadow-sm transition-all hover:shadow-lg hover:border-red-400 hover:-translate-y-1 dark:border-red-900/50 dark:from-red-950/30 dark:to-rose-950/30 dark:hover:border-red-700">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🔬</span>
+        <div class="text-sm font-semibold text-red-800 dark:text-red-300" data-i18n="quicknav.disease">Disease Detection</div>
+      </div>
+      <div class="mt-2 text-xs text-red-600/80 dark:text-red-400/70" data-i18n="quicknav.diseaseDesc">Scan leaves for disease diagnosis</div>
+    </a>
+    <a href="/dashboard" class="group rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 p-6 shadow-sm transition-all hover:shadow-lg hover:border-emerald-400 hover:-translate-y-1 dark:border-emerald-900/50 dark:from-emerald-950/30 dark:to-green-950/30 dark:hover:border-emerald-700">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🌱</span>
+        <div class="text-sm font-semibold text-emerald-800 dark:text-emerald-300" data-i18n="quicknav.lifecycle">Lifecycle Monitoring</div>
+      </div>
+      <div class="mt-2 text-xs text-emerald-600/80 dark:text-emerald-400/70" data-i18n="quicknav.lifecycleDesc">Track your crop growth stages</div>
+    </a>
+    <a href="/market" class="group rounded-xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-sm transition-all hover:shadow-lg hover:border-blue-400 hover:-translate-y-1 dark:border-blue-900/50 dark:from-blue-950/30 dark:to-indigo-950/30 dark:hover:border-blue-700">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">💹</span>
+        <div class="text-sm font-semibold text-blue-800 dark:text-blue-300" data-i18n="quicknav.postharvest">Post-Harvest</div>
+      </div>
+      <div class="mt-2 text-xs text-blue-600/80 dark:text-blue-400/70" data-i18n="quicknav.postharvestDesc">Market prices and sell timing</div>
+    </a>
+  </div>
+
+  <!-- Crop Stage Timeline Guide -->
+  <div class="mt-6 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6 shadow-sm dark:border-purple-900/50 dark:from-purple-950/30 dark:via-gray-900 dark:to-pink-950/30">
+    <div class="mb-4">
+      <div class="text-lg font-semibold text-purple-800 dark:text-purple-300">📅 <span data-i18n="timeline.title">Crop Stage Timeline Guide</span></div>
+      <div class="mt-1 text-sm text-purple-600/80 dark:text-purple-400/70" data-i18n="timeline.subtitle">Your crop stage is detected based on days since planting</div>
+    </div>
+    
+    <!-- Current Progress Indicator -->
+    <div class="mb-6 p-4 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 dark:from-emerald-900/20 dark:to-green-900/20 dark:border-emerald-800">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide" data-i18n="timeline.progress">Current Progress</div>
+          <div class="mt-1 flex items-baseline gap-2">
+            <span id="current-stage-name" class="text-lg font-semibold text-gray-900 dark:text-gray-50">--</span>
+            <span id="current-day-count" class="text-sm text-gray-600 dark:text-gray-400">Day --</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-gray-500 dark:text-gray-400" data-i18n="timeline.harvestIn">Est. Harvest In</div>
+          <div id="days-to-harvest" class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">-- <span data-i18n="timeline.days">days</span></div>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div class="mt-3">
+        <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+          <div id="stage-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+          <span data-i18n="timeline.planted">Planted</span>
+          <span data-i18n="timeline.harvest">Harvest (~120 days)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Timeline -->
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <!-- Germination -->
+      <div id="stage-germination" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌱</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.germination">Germination</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 0 - 14</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.germinationDesc">Seed sprouting</div>
+      </div>
+      
+      <!-- Vegetative -->
+      <div id="stage-vegetative" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌿</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.vegetative">Vegetative</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 15 - 35</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.vegetativeDesc">Leaf development</div>
+      </div>
+      
+      <!-- Tillering -->
+      <div id="stage-tillering" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌾</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.tillering">Tillering</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 36 - 60</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.tilleringDesc">Stem branching</div>
+      </div>
+      
+      <!-- Flowering -->
+      <div id="stage-flowering" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌸</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.flowering">Flowering</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 61 - 85</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.floweringDesc">Bloom period</div>
+      </div>
+      
+      <!-- Grain Filling -->
+      <div id="stage-grain_filling" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌽</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.grainFill">Grain Fill</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 86 - 110</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.grainFillDesc">Grain maturing</div>
+      </div>
+      
+      <!-- Maturity -->
+      <div id="stage-maturity" class="stage-card relative rounded-lg border-2 border-gray-200 bg-gray-50 p-3 transition-all dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🌾</span>
+          <span class="text-xs font-semibold text-gray-900 dark:text-gray-50" data-i18n="timeline.maturity">Maturity</span>
+        </div>
+        <div class="text-xs text-gray-600 dark:text-gray-400"><span data-i18n="timeline.day">Day</span> 111+</div>
+        <div class="mt-1 text-[10px] text-gray-500 dark:text-gray-500" data-i18n="timeline.maturityDesc">Ready to harvest</div>
+      </div>
+    </div>
+
+    <!-- Info Note -->
+    <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+      <div class="flex items-start gap-2">
+        <span class="text-blue-500 dark:text-blue-400">ℹ️</span>
+        <div class="text-xs text-blue-700 dark:text-blue-300">
+          <strong data-i18n="timeline.howItWorks">How it works:</strong> <span data-i18n="timeline.howItWorksDesc">Your crop stage is automatically determined based on the number of days since you recorded the planting date. The typical rice crop cycle is ~120 days from planting to harvest.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/home_saas.js?v=7"></script>
+{% endblock %}

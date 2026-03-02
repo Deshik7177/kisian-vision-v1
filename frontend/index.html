@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KisanVision 360 - Disease</title>
+    <link rel="stylesheet" href="/static/style.css?v=5">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <nav class="top-nav">
+                <a class="nav-link" href="/" data-i18n="nav.home">Home</a>
+                <a class="nav-link active" href="/disease" data-i18n="nav.disease">Disease</a>
+                <a class="nav-link" href="/dashboard" data-i18n="nav.lifecycle">Lifecycle</a>
+                <a class="nav-link" href="/market" data-i18n="nav.postharvest">Post-Harvest</a>
+                <button id="connection-status-btn" class="connection-status-btn" type="button">Checking...</button>
+            </nav>
+            <h1>🌾 KisanVision 360 - Disease</h1>
+            <p class="subtitle">Scan leaf images and get farmer-friendly action steps in your selected language.</p>
+        </header>
+
+        <section class="upload-section">
+            <div class="controls-grid">
+                <button id="camera-btn" class="primary-btn">📷 Open Camera</button>
+                <label class="file-picker" for="file-input">
+                    <span>🖼 Choose Image *</span>
+                    <input type="file" id="file-input" accept="image/*">
+                </label>
+                <label class="language-picker" for="crop-select">
+                    <span>🌱 Crop *</span>
+                    <select id="crop-select">
+                        <option value="rice">Rice</option>
+                        <option value="tomato">Tomato</option>
+                    </select>
+                </label>
+                <button id="upload-btn" class="primary-btn">🧠 Upload and Predict</button>
+            </div>
+
+            <p id="selected-file" class="selected-file">No file selected</p>
+
+            <div id="camera-container" class="camera-panel" style="display: none;">
+                <video id="camera-stream" width="640" height="420" autoplay playsinline muted></video>
+                <button id="capture-btn" class="secondary-btn">📸 Capture Photo</button>
+            </div>
+
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+            <p id="status-text" class="status-text" aria-live="polite"></p>
+        </section>
+
+        <section id="result-section" class="result-section">
+            <h2>📊 Prediction Results</h2>
+            <div id="image-container"></div>
+            <div id="predictions"></div>
+        </section>
+
+        <section class="recommendation-box disease-supported-box">
+            <h3>✅ What This Can Predict</h3>
+            <div class="disease-supported-grid">
+                <div>
+                    <h4>Rice Model</h4>
+                    <ul>
+                        <li>Bacterial Leaf Blight</li>
+                        <li>Brown Spot</li>
+                        <li>Not a plant image or No disease detected</li>
+                        <li>Hispa</li>
+                        <li>Leaf Blast</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Tomato Model</h4>
+                    <ul>
+                        <li>Bacterial Spot</li>
+                        <li>Early Blight</li>
+                        <li>Not a plant image or No disease detected</li>
+                        <li>Late Blight</li>
+                        <li>Leaf Mold</li>
+                        <li>Leaf Miner</li>
+                        <li>Mosaic Virus</li>
+                        <li>Septoria</li>
+                        <li>Spider Mites</li>
+                        <li>Yellow Leaf Curl Virus</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="/static/i18n.js"></script>
+    <script src="/static/common.js?v=4"></script>
+    <script src="/static/disease.js?v=2"></script>
+</body>
+</html>
