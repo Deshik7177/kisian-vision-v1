@@ -161,15 +161,47 @@
   </div>
 
   <!-- Market Prices Overview -->
-  <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-    <div class="flex items-center justify-between mb-4">
-      <div class="text-sm font-semibold text-gray-900 dark:text-gray-50">Market Prices Overview</div>
-      <span class="text-xs text-gray-500 dark:text-gray-400">Today's rates</span>
+  <!-- Market Prices (Today + Tomorrow) - Homepage Style -->
+  <div class="mt-6 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6 shadow-sm dark:border-blue-900/50 dark:from-blue-950/30 dark:via-gray-900 dark:to-indigo-950/30">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+      <div>
+        <div class="text-lg font-semibold text-blue-800 dark:text-blue-300">💰 <span data-i18n="market.title">Market Prices</span></div>
+        <div class="mt-1 text-sm text-blue-600/80 dark:text-blue-400/70" data-i18n="market.subtitle">Today's prices &amp; tomorrow's prediction</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Location Selector (optional for post-harvest) -->
+        <div class="relative">
+          <select id="location-select" class="appearance-none pl-8 pr-8 py-1.5 text-xs font-medium rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300">
+            <option value="vizianagaram">Loading...</option>
+          </select>
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400 pointer-events-none">📍</span>
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400 pointer-events-none text-[10px]">▼</span>
+        </div>
+        <!-- Current Location Display -->
+        <div id="market-location" class="hidden sm:flex items-center gap-1 px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">
+          <span class="text-[10px] text-gray-500 dark:text-gray-400" data-i18n="market.mandiPrices">Mandi Prices</span>
+        </div>
+      </div>
     </div>
-    <div id="market-prices-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-      <!-- Dynamically populated -->
+    <!-- Price Cards -->
+    <div id="home-prices" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
+        <div class="text-sm text-gray-500 dark:text-gray-400">Loading prices...</div>
+      </div>
+    </div>
+    <!-- Prediction Info -->
+    <div class="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+      <div class="flex items-start gap-2">
+        <span class="text-blue-500">📊</span>
+        <div class="text-xs text-blue-700 dark:text-blue-300">
+          <strong>Tomorrow's Prediction:</strong> Based on 7-day price trend analysis using weighted moving average + momentum. 
+          Confidence levels: <span class="text-emerald-600 dark:text-emerald-400 font-medium">High</span> (consistent trend), <span class="text-amber-600 dark:text-amber-400 font-medium">Medium</span> (volatile), <span class="text-red-600 dark:text-red-400 font-medium">Low</span> (uncertain)
+        </div>
+      </div>
     </div>
   </div>
+  <!-- Existing Market Prices Overview for post-harvest -->
+  <!-- Removed repeated Market Prices Overview grid. Only homepage-style price card and prediction info UI remain. -->
 </section>
 {% endblock %}
 

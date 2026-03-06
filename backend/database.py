@@ -324,17 +324,19 @@ def register_device(payload: Dict[str, Any]) -> int:
     with get_connection() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO device_registry (device_id, device_type, farmer_id, crop_name, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO device_registry (device_id, device_type, farmer_id, crop_name, days_since_planting, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(farmer_id, device_id) DO UPDATE SET
                 device_type=excluded.device_type,
-                crop_name=excluded.crop_name
+                crop_name=excluded.crop_name,
+                days_since_planting=excluded.days_since_planting
             """,
             (
                 payload["device_id"],
                 payload["device_type"],
                 payload.get("farmer_id"),
                 payload.get("crop_name"),
+                payload.get("days_since_planting", 0),
                 utc_now_iso(),
             ),
         )

@@ -1,6 +1,59 @@
 // market_saas.js – Post-Harvest Market SaaS (v6 - Full Features)
 
 (function () {
+    // Homepage-style price card rendering for post-harvest UI
+    function renderHomePrices(dailyPrices) {
+      const container = $('home-prices');
+      if (!container) return;
+
+      if (!dailyPrices || !dailyPrices.length) {
+        container.innerHTML = `
+          <div class="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
+            <div class="text-sm text-gray-500 dark:text-gray-400">No price data available</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = dailyPrices.slice(0, 5).map(item => {
+        const todayPrice = item.price != null ? `₹${Number(item.price).toFixed(0)}` : '--';
+        const trend = String(item.trend || 'stable').toLowerCase();
+        const trendIcon = trend === 'rising' ? '↗' : trend === 'falling' ? '↘' : '→';
+        const trendColor = trend === 'rising' ? 'text-emerald-600' : trend === 'falling' ? 'text-red-600' : 'text-gray-500';
+        const unitDisplay = item.unit_display || 'per Quintal';
+        const tomorrow = item.tomorrow || {};
+        const tomorrowPrice = tomorrow.predicted_price != null ? `₹${Number(tomorrow.predicted_price).toFixed(0)}` : '--';
+        const changePct = tomorrow.change_pct || 0;
+        const changeIcon = changePct > 0 ? '↑' : changePct < 0 ? '↓' : '→';
+        const changeColor = changePct > 0 ? 'text-emerald-600' : changePct < 0 ? 'text-red-600' : 'text-gray-500';
+        const confidence = tomorrow.confidence || 'low';
+        const confStyle = confidence === 'high' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : confidence === 'medium' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400';
+
+        return `
+          <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800/50 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-semibold text-gray-900 dark:text-gray-50">${item.commodity}</div>
+              <div class="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400">${unitDisplay}</div>
+            </div>
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
+              <div>
+                <div class="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Today</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-gray-50">${todayPrice}</div>
+              </div>
+              <div class="text-xs font-medium ${trendColor}">${trendIcon} ${item.trend || 'Stable'}</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">Tomorrow</div>
+                <div class="text-base font-semibold text-blue-600 dark:text-blue-400">${tomorrowPrice}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs font-medium ${changeColor}">${changeIcon} ${Math.abs(changePct).toFixed(1)}%</div>
+                <div class="text-[10px] px-1.5 py-0.5 rounded ${confStyle} capitalize">${confidence}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
   'use strict';
 
   const $ = (id) => document.getElementById(id);
@@ -396,6 +449,11 @@
 
       // Market Prices Overview
       const marketData = populateMarketPrices(commodity, sp.current_price);
+
+      // Homepage-style price cards (if daily_prices available)
+      if (d.daily_prices) {
+        renderHomePrices(d.daily_prices);
+      }
 
       // AI Insights
       populateAIInsights(sp, commodity, marketData);

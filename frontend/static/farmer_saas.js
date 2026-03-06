@@ -227,7 +227,10 @@
           if (deviceIdEl) deviceIdEl.value = device.device_id || '';
           if (deviceTypeEl) deviceTypeEl.value = device.device_type || 'field';
           if (cropNameEl) cropNameEl.value = device.crop_name || 'Rice';
-          if (daysEl) daysEl.value = device.days_since_planting || 0;
+          if (daysEl) {
+            daysEl.value = device.days_since_planting !== undefined ? device.days_since_planting : 0;
+            daysEl.dispatchEvent(new Event('input', { bubbles: true }));
+          }
         }
       }
     } catch (err) {

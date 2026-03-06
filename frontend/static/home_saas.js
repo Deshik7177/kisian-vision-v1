@@ -286,6 +286,7 @@
 
       // Market Prices + Location (market already declared above)
       renderMarketLocation(market.location);
+      console.log('[Home] market.daily_prices:', market.daily_prices);
       renderPrices(market.daily_prices || []);
 
     } catch (err) {

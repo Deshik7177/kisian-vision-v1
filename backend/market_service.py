@@ -112,12 +112,13 @@ def _demo_prices(commodity: str = "Rice") -> List[Dict]:
     ]
 
 
-def fetch_market_prices(commodity: str = "Rice") -> Dict:
+def fetch_market_prices(commodity: str = "Rice", state: str = None, market: str = None) -> Dict:
     api_key = os.getenv("DATA_GOV_API_KEY", "")
     resource_id = os.getenv("DATA_GOV_RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
-    limit = int(os.getenv("DATA_GOV_LIMIT", "14"))
+    limit = int(os.getenv("DATA_GOV_LIMIT", "5"))
 
     if not api_key:
+        print(f"[market_service] Fallback to demo: DATA_GOV_API_KEY missing for commodity {commodity}")
         prices = _demo_prices(commodity)
         return {
             "source": "demo",
@@ -133,6 +134,10 @@ def fetch_market_prices(commodity: str = "Rice") -> Dict:
         "limit": limit,
         "filters[commodity]": commodity,
     }
+    if state:
+        params["filters[State]"] = state
+    if market:
+        params["filters[Market]"] = market
 
     try:
         response = requests.get(url, params=params, timeout=8)
@@ -142,6 +147,7 @@ def fetch_market_prices(commodity: str = "Rice") -> Dict:
                 error_message = error_payload.get("error") or error_payload.get("message") or response.text[:120]
             except Exception:
                 error_message = response.text[:120]
+            print(f"[market_service] Fallback to demo: Live API rejected request for {commodity} ({response.status_code}): {error_message}")
             prices = _demo_prices(commodity)
             return {
                 "source": "demo",
@@ -151,31 +157,44 @@ def fetch_market_prices(commodity: str = "Rice") -> Dict:
             }
 
         data = response.json()
+        # Log the full raw API response for diagnosis
+        if commodity.lower() == "rice":
+            import json
+            print(f"[market_service] Raw API response for Rice: {json.dumps(data, indent=2)[:4000]}")
         records = data.get("records", [])
 
+
         normalized = []
-        for item in records:
-            raw_price = item.get("modal_price") or item.get("max_price") or item.get("min_price")
+        for idx, item in enumerate(records):
+            print(f"[market_service] Record {idx}: {item}")
+            raw_price = item.get("Modal_Price") or item.get("Max_Price") or item.get("Min_Price")
             if raw_price is None:
+                print(f"[market_service] Skipping record {idx}: No price found.")
                 continue
             try:
                 price = float(str(raw_price).replace(",", "").strip())
-            except ValueError:
+            except ValueError as ve:
+                print(f"[market_service] Skipping record {idx}: Price parse error: {ve}")
                 continue
 
-            raw_date = item.get("arrival_date") or item.get("timestamp") or ""
+            raw_date = item.get("Arrival_Date") or item.get("timestamp") or ""
             if raw_date:
                 try:
-                    parsed = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
-                    date = parsed.date().isoformat()
-                except Exception:
+                    from datetime import datetime
+                    date_obj = datetime.strptime(raw_date, "%d/%m/%Y")
+                    date = date_obj.date().isoformat()
+                except Exception as de:
+                    print(f"[market_service] Record {idx}: Date parse error: {de}")
+    
                     date = raw_date
             else:
+                print(f"[market_service] Record {idx}: No date found.")
                 date = "unknown"
 
             normalized.append({"date": date, "price": price})
 
         if not normalized:
+            print(f"[market_service] Fallback to demo: Live API returned no usable records for {commodity}. Using demo fallback.")
             prices = _demo_prices(commodity)
             return {
                 "source": "demo",
@@ -188,6 +207,7 @@ def fetch_market_prices(commodity: str = "Rice") -> Dict:
         return {"source": "data.gov.in", "commodity": commodity, "records": normalized[-7:]}
 
     except Exception as exc:
+        print(f"[market_service] Fallback to demo: Live API request failed for {commodity} ({type(exc).__name__}): {exc}")
         prices = _demo_prices(commodity)
         return {
             "source": "demo",

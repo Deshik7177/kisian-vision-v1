@@ -636,7 +636,20 @@ async def chatbot_advisory(question: str = Body(...), language: str = Body("en")
         return {"answer": "Sorry, advisory service is not available right now."}
     try:
         client = Groq(api_key=api_key)
-        prompt = f"A farmer asked: '{question}'. Please answer in {lang} in simple, actionable language, under 80 words, with 3-4 short numbered steps."
+        # Context-aware follow-up logic
+        if question.strip().lower() in [
+            "can you give me a follow-up advisory?",
+            "follow-up advisory",
+            "next steps",
+            "what should i do next?",
+        ]:
+            prompt = (
+                f"A farmer asked for a follow-up advisory. Please answer in {lang} in simple, actionable language, under 60 words, with 2-3 short numbered steps."
+            )
+        else:
+            prompt = (
+                f"A farmer asked: '{question}'. Please answer in {lang} in simple, actionable language, under 80 words, with 3-4 short numbered steps."
+            )
         completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model=model,
@@ -982,9 +995,14 @@ def recommendation(language: str = Query("en"), commodity: str = Query("Rice")) 
 
 
 @app.get("/market-prices")
-def market_prices(commodity: str = Query("Rice"), language: str = Query("en")) -> Dict:
+def market_prices(
+    commodity: str = Query("Rice"),
+    language: str = Query("en"),
+    state: str = Query(None),
+    market: str = Query(None)
+) -> Dict:
     lang = normalize_language(language)
-    prices = fetch_market_prices(commodity)
+    prices = fetch_market_prices(commodity, state=state, market=market)
     latest_field = get_latest_field_data() or {}
     latest_storage = get_latest_storage_data() or {}
 
@@ -1009,6 +1027,19 @@ def market_prices(commodity: str = Query("Rice"), language: str = Query("en")) -
     )
 
     sell_prediction = sell_timing_prediction(spoilage_risk, prices, commodity)
+    # Translate sell_prediction decision and reason if needed
+    from decision_engine import normalize_language
+    lang = normalize_language(language)
+    def translate_advisory(text):
+        if lang == "hi":
+            # Simple hardcoded translation for demo; replace with real translation logic or API
+            return "[हिन्दी] " + text
+        if lang == "te":
+            return "[తెలుగు] " + text
+        return text
+
+    sell_prediction["decision"] = translate_advisory(sell_prediction.get("decision", ""))
+    sell_prediction["reason"] = translate_advisory(sell_prediction.get("reason", ""))
     return {
         "commodity": commodity,
         "source": prices.get("source", "demo"),
@@ -1055,40 +1086,37 @@ def home_data(language: str = Query("en"), location: str = Query("default")) -> 
     # Get market location
     market_location = get_market_location(location)
 
-    commodities = ["Rice", "Onion", "Tomato", "Potato", "Cabbage"]
+    commodities = [
+        "Rice", "Wheat", "Maize", "Onion", "Potato", "Tomato",
+        "Cabbage", "Carrot", "Beetroot", "Green Chilli", "Banana"
+    ]
+    import concurrent.futures
     daily_prices: List[Dict] = []
-    for commodity in commodities:
+    def get_price_data(commodity):
         prices = fetch_market_prices(commodity)
         records = prices.get("records", []) or []
         prediction = sell_timing_prediction(spoilage_risk, prices, commodity)
         latest_price = records[-1].get("price") if records else None
         latest_date = records[-1].get("date") if records else None
-        
-        # Get tomorrow's predicted price
-        tomorrow_prediction = predict_tomorrow_price(records, commodity)
-        
-        # Get unit info
+        tomorrow = predict_tomorrow_price(records, commodity)
         unit_info = get_commodity_unit(commodity)
+        return {
+            "commodity": commodity,
+            "prices": prices,
+            "records": records,
+            "prediction": prediction,
+            "price": latest_price,
+            "date": latest_date,
+            "tomorrow": tomorrow,
+            "unit_display": unit_info.get("display", "per Quintal"),
+            "unit": unit_info.get("unit", "quintal"),
+            "unit_kg": unit_info.get("unit_kg", 100),
+        }
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(commodities)) as executor:
+        results = list(executor.map(get_price_data, commodities))
+    daily_prices = results
         
-        daily_prices.append(
-            {
-                "commodity": commodity,
-                "date": latest_date,
-                "price": latest_price,
-                "unit": unit_info["unit"],
-                "unit_display": unit_info["display"],
-                "unit_kg": unit_info["unit_kg"],
-                "trend": prediction.get("trend", "stable"),
-                "source": prices.get("source", "demo"),
-                "tomorrow": {
-                    "predicted_price": tomorrow_prediction.get("predicted_price"),
-                    "change_pct": tomorrow_prediction.get("change_pct", 0),
-                    "confidence": tomorrow_prediction.get("confidence", "low"),
-                    "date": tomorrow_prediction.get("date"),
-                    "trend_direction": tomorrow_prediction.get("trend_direction", "stable"),
-                },
-            }
-        )
 
     return {
         "app_name": "KisanVision 360",

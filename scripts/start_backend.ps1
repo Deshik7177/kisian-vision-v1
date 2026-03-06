@@ -17,5 +17,5 @@ if (-not (Test-Path $pythonExe)) {
     throw "Python 3.10 not found at $pythonExe. Update scripts/start_backend.ps1"
 }
 
-Write-Host "Starting backend on http://127.0.0.1:5000 ..." -ForegroundColor Green
-& $pythonExe .\app.py
+Write-Host "Starting backend on http://127.0.0.1:8000 ..." -ForegroundColor Green
+& $pythonExe -m uvicorn main:app --reload
