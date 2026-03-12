@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+import pathlib
+env_path = pathlib.Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 from datetime import datetime, timedelta
 from typing import Dict, List
 
@@ -113,12 +117,15 @@ def _demo_prices(commodity: str = "Rice") -> List[Dict]:
 
 
 def fetch_market_prices(commodity: str = "Rice", state: str = None, market: str = None) -> Dict:
+    # ...existing code...
     api_key = os.getenv("DATA_GOV_API_KEY", "")
     resource_id = os.getenv("DATA_GOV_RESOURCE_ID", "9ef84268-d588-465a-a308-a864a43d0070")
-    limit = int(os.getenv("DATA_GOV_LIMIT", "5"))
+    limit = int(os.getenv("DATA_GOV_LIMIT", "14"))
+    print("[DEBUG] api_key:", api_key)
+    print("[DEBUG] resource_id:", resource_id)
+    print("[DEBUG] limit:", limit)
 
     if not api_key:
-        print(f"[market_service] Fallback to demo: DATA_GOV_API_KEY missing for commodity {commodity}")
         prices = _demo_prices(commodity)
         return {
             "source": "demo",
@@ -134,20 +141,20 @@ def fetch_market_prices(commodity: str = "Rice", state: str = None, market: str 
         "limit": limit,
         "filters[commodity]": commodity,
     }
-    if state:
-        params["filters[State]"] = state
-    if market:
-        params["filters[Market]"] = market
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
     try:
-        response = requests.get(url, params=params, timeout=8)
+        response = requests.get(url, params=params, timeout=8, headers=headers)
+        print("[DEBUG] response.status_code:", response.status_code)
+        print("[DEBUG] response.text (first 500 chars):", response.text[:500])
         if response.status_code >= 400:
             try:
                 error_payload = response.json()
                 error_message = error_payload.get("error") or error_payload.get("message") or response.text[:120]
             except Exception:
                 error_message = response.text[:120]
-            print(f"[market_service] Fallback to demo: Live API rejected request for {commodity} ({response.status_code}): {error_message}")
             prices = _demo_prices(commodity)
             return {
                 "source": "demo",
@@ -157,44 +164,44 @@ def fetch_market_prices(commodity: str = "Rice", state: str = None, market: str 
             }
 
         data = response.json()
-        # Log the full raw API response for diagnosis
-        if commodity.lower() == "rice":
-            import json
-            print(f"[market_service] Raw API response for Rice: {json.dumps(data, indent=2)[:4000]}")
         records = data.get("records", [])
-
+        print("[DEBUG] records field:", records)
 
         normalized = []
-        for idx, item in enumerate(records):
-            print(f"[market_service] Record {idx}: {item}")
-            raw_price = item.get("Modal_Price") or item.get("Max_Price") or item.get("Min_Price")
+        for item in records:
+            # Handle both lowercase and capitalized keys
+            raw_price = (
+                item.get("modal_price") or item.get("Modal_Price") or
+                item.get("max_price") or item.get("Max_Price") or
+                item.get("min_price") or item.get("Min_Price")
+            )
             if raw_price is None:
-                print(f"[market_service] Skipping record {idx}: No price found.")
                 continue
             try:
                 price = float(str(raw_price).replace(",", "").strip())
-            except ValueError as ve:
-                print(f"[market_service] Skipping record {idx}: Price parse error: {ve}")
+            except ValueError:
                 continue
 
-            raw_date = item.get("Arrival_Date") or item.get("timestamp") or ""
+            raw_date = (
+                item.get("arrival_date") or item.get("Arrival_Date") or
+                item.get("timestamp") or item.get("Timestamp") or ""
+            )
             if raw_date:
                 try:
-                    from datetime import datetime
-                    date_obj = datetime.strptime(raw_date, "%d/%m/%Y")
-                    date = date_obj.date().isoformat()
-                except Exception as de:
-                    print(f"[market_service] Record {idx}: Date parse error: {de}")
-    
+                    # Try DD/MM/YYYY format first
+                    if "/" in raw_date:
+                        date = datetime.strptime(raw_date, "%d/%m/%Y").date().isoformat()
+                    else:
+                        parsed = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
+                        date = parsed.date().isoformat()
+                except Exception:
                     date = raw_date
             else:
-                print(f"[market_service] Record {idx}: No date found.")
                 date = "unknown"
 
             normalized.append({"date": date, "price": price})
 
         if not normalized:
-            print(f"[market_service] Fallback to demo: Live API returned no usable records for {commodity}. Using demo fallback.")
             prices = _demo_prices(commodity)
             return {
                 "source": "demo",
@@ -207,7 +214,6 @@ def fetch_market_prices(commodity: str = "Rice", state: str = None, market: str 
         return {"source": "data.gov.in", "commodity": commodity, "records": normalized[-7:]}
 
     except Exception as exc:
-        print(f"[market_service] Fallback to demo: Live API request failed for {commodity} ({type(exc).__name__}): {exc}")
         prices = _demo_prices(commodity)
         return {
             "source": "demo",

@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 from starlette.requests import Request
 from ultralytics import YOLO
+from decision_engine import normalize_language
 
 from database import (
     authenticate_farmer,
@@ -1028,7 +1029,6 @@ def market_prices(
 
     sell_prediction = sell_timing_prediction(spoilage_risk, prices, commodity)
     # Translate sell_prediction decision and reason if needed
-    from decision_engine import normalize_language
     lang = normalize_language(language)
     def translate_advisory(text):
         if lang == "hi":
